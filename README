@@ -1,0 +1,21 @@
+
+Javascript library that offer some usefull function when you work 
+with path/directions/routes in Google Maps API, under LGPL Licence.
+
+// Simply create a point on Paris and zurich centers
+var paris = new google.maps.LatLng(48.856667,2.350987);
+var zurich = new google.maps.LatLng(47.369024,8.538033);
+
+// Now retrieve a Bounds object that surround all paris.
+// ie a square of 10km with $paris as center
+var parisRectangle = paris.getRadialBoundaries(5);
+
+// Simply get the straight distance between Paris and Zurich, result in kilometers
+// Something around 490km
+var paris_zurich_distance = paris.distanceFrom(zurich);
+
+// Then, retrieve the point at 140km between Paris->Zurich (on a straight line)
+// Again, distance is in kilometers
+// This point is near "Troyes" french city.
+var somewhereNearTroyes = paris.pointBetween(zurich,140);
+
