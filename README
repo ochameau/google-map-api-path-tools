@@ -2,7 +2,7 @@
 Javascript library that offer some usefull function when you work 
 with path/directions/routes in Google Maps API, under LGPL Licence.
 
-// Simply create a point on Paris and zurich centers
+// Simply create a point on Paris and Zurich centers
 var paris = new google.maps.LatLng(48.856667,2.350987);
 var zurich = new google.maps.LatLng(47.369024,8.538033);
 
@@ -19,3 +19,21 @@ var paris_zurich_distance = paris.distanceFrom(zurich);
 // This point is near "Troyes" french city.
 var somewhereNearTroyes = paris.pointBetween(zurich,140);
 
+// Retrieve the route from Paris to Zurich
+var request = {
+  origin: paris,
+  destination: zurich,
+  travelMode: google.maps.DirectionsTravelMode.DRIVING
+};
+directionsService.route(request, function(response, status) {
+  if (status != google.maps.DirectionsStatus.OK) return;
+  var leg = response.routes[0].legs[0];
+  
+  // Once we get that result, compute the point at one hour on the road from Paris to Zurich :)
+  var oneHoursFromParisOnTheRoadToZurich = getDirectionPointAtDuration(leg,1*60*60);
+  
+  // Or the point at the middle of the trip
+  // Not the middle in term of kilometer, but in times!
+  var middleInTimeFromParisOnTheRoadToZurich = getDirectionPointAtDuration(leg,leg.duration.value/2);
+  
+});

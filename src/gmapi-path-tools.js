@@ -95,3 +95,40 @@ Number.prototype.toDeg = function() {
   return this * 180 / Math.PI;
 }
 
+
+// Compute the point (LatLng object) which is on the route described 
+// by the $leg passed as first argument and where you are going to be after
+// $wantedDuration in seconds.
+// - $leg is a DirectionsLeg object, returned by DirectionsService
+// - $wantedDuration is in seconds
+// http://code.google.com/intl/fr/apis/maps/documentation/javascript/reference.html#DirectionsLeg
+function getDirectionPointAtDuration(leg, wantedDuration) {
+  if (wantedDuration==0) return leg.start_location;
+  if (wantedDuration==leg.duration.value) return leg.end_location;
+  var currentDuration = 0;
+  for(var i=0; i<leg.steps.length; i++) {
+    var step = leg.steps[i];
+    if (currentDuration <= wantedDuration 
+        && wantedDuration <= currentDuration+step.duration.value) {
+      var ratio = (wantedDuration-currentDuration)/step.duration.value;
+      if (ratio==0) return step.path[0];
+      if (ratio==1) return step.path[step.path.length-1];
+      var stepDistanceToDo = ratio*(step.distance.value/1000);
+      var currentDistance = 0;
+      var previousPoint = step.path[0];
+      for(var j=1; j<step.path.length; j++) {
+        var point = step.path[j];
+        var distance = previousPoint.distanceFrom(point);
+        if (currentDistance <= stepDistanceToDo
+            && stepDistanceToDo < currentDistance+distance) {
+          return point.pointBetween(step.path[j+1], stepDistanceToDo-currentDistance);
+        }
+        previousPoint = point;
+        currentDistance += distance;
+      }
+      break;
+    }
+    currentDuration += step.duration.value;
+  }
+  throw new Error("Unable to find the point at duration:"+wantedDuration+". It may be because duration is bigger than the total route duration!");
+}
